@@ -8,10 +8,10 @@
 
 import 'react-native-gesture-handler';
 import React from 'react';
-import Navigation from './components/dm/layout/Navigation';
+import Main from './components/dm/layout/Main';
 
 const App: () => React$Node = () => {
-  return <Navigation />;
+  return <Main />;
 };
 
 export default App;
