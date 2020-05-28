@@ -8,7 +8,7 @@
 
 import 'react-native-gesture-handler';
 import React from 'react';
-import Main from './components/dm/layout/Main';
+import Main from './components/structure/Main';
 
 const App: () => React$Node = () => {
   return <Main />;

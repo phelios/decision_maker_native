@@ -1,5 +1,5 @@
-import HomeScreen from '../../dm/pages/HomeScreen';
-import CriteriaSet from '../../dm/pages/CriteriaSet';
+import HomeScreen from '../structure/pages/HomeScreen';
+import CriteriaSet from '../structure/pages/CriteriaSet';
 
 export const Pages = [
   {
