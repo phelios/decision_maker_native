@@ -1,4 +1,5 @@
-import HomeScreen from '../../dm/pages/HomeScreen/HomeScreen';
+import HomeScreen from '../../dm/pages/HomeScreen';
+import CriteriaSet from '../../dm/pages/CriteriaSet';
 
 export const Pages = [
   {
@@ -6,7 +7,7 @@ export const Pages = [
     component: HomeScreen,
   },
   {
-    name: 'Dummy',
-    component: HomeScreen,
+    name: 'Criteria Set',
+    component: CriteriaSet,
   },
 ];
