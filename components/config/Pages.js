@@ -1,5 +1,5 @@
 import HomeScreen from '../structure/pages/HomeScreen';
-import CriteriaSet from '../structure/pages/CriteriaSet';
+import Criteria from '../structure/pages/Criteria';
 
 export const Pages = [
   {
@@ -8,6 +8,6 @@ export const Pages = [
   },
   {
     name: 'Criteria Set',
-    component: CriteriaSet,
+    component: Criteria,
   },
 ];
