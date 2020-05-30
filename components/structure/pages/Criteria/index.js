@@ -5,7 +5,6 @@ import {
   Body,
   Title,
   Content,
-  List,
   ListItem,
   Text,
   Button,
@@ -22,7 +21,6 @@ import {flexStyle, mainStyle} from '../../../layout/style';
 export default function Criteria() {
   const [criteria, setCriteria] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [deleteVisible, setDeleteVisible] = useState(false);
 
   const [name, setName] = useState(null);
   const [weight, setWeight] = useState(null);
@@ -45,7 +43,74 @@ export default function Criteria() {
 
     return fetch('https://dm-api.herokuapp.com/api/criteria/', data)
       .then(response => response.json()) // promise
-      .then(json => setId(json.id));
+      .then(json => {
+        setCriteria([...criteria, json]);
+        closeModal();
+      })
+      .then(err => {
+        console.log(err);
+      });
+  }
+
+  function handleDelete(itemId) {
+    let data = {
+      method: 'DELETE',
+    };
+    return fetch(`https://dm-api.herokuapp.com/api/criteria/${itemId}`, data)
+      .then(response => {
+        setCriteria(
+          criteria.filter(v => {
+            return v.id !== itemId;
+          }),
+        );
+        closeModal();
+      })
+      .then(err => {
+        console.log(err);
+      });
+  }
+
+  function handleUpdate(itemId) {
+    const formData = {
+      name: name,
+      weight: weight,
+    };
+
+    let data = {
+      method: 'PUT',
+      body: JSON.stringify(formData),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    };
+    return fetch(`https://dm-api.herokuapp.com/api/criteria/${itemId}`, data)
+      .then(response => {
+        console.log(response);
+
+        const idx = criteria.findIndex(i => i.id === itemId);
+        criteria[idx] = {
+          id: id,
+          name: name,
+          weight: weight,
+        };
+        setCriteria(criteria);
+        closeModal();
+      })
+      .then(err => {
+        console.log(err);
+      });
+  }
+
+  function resetData() {
+    setName(null);
+    setWeight(null);
+    setId(null);
+  }
+
+  function closeModal() {
+    resetData();
+    setModalVisible(false);
   }
 
   function renderEdit(item) {
@@ -62,14 +127,6 @@ export default function Criteria() {
       .json()
       .then(res => setCriteria(res))
       .then(err => console.log(err));
-  }
-
-  function renderEditButton() {
-    if (!deleteVisible) {
-      return <Text>edit</Text>;
-    } else {
-      return <Text>cancel</Text>;
-    }
   }
 
   function renderRow(data) {
@@ -90,10 +147,13 @@ export default function Criteria() {
     if (id) {
       return (
         <>
-          <Button style={flexStyle.button} onPress={handleNew}>
+          <Button style={flexStyle.button} onPress={() => handleUpdate(id)}>
             <Text>Update</Text>
           </Button>
-          <Button danger style={flexStyle.button} onPress={handleNew}>
+          <Button
+            danger
+            style={flexStyle.button}
+            onPress={() => handleDelete(id)}>
             <Text>Delete</Text>
           </Button>
         </>
@@ -134,7 +194,7 @@ export default function Criteria() {
               <Title>Add Criteria</Title>
             </Body>
             <Right>
-              <Button danger transparent onPress={() => setModalVisible(false)}>
+              <Button danger transparent onPress={() => closeModal()}>
                 <Text>close</Text>
               </Button>
             </Right>
