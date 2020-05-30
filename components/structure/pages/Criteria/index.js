@@ -15,21 +15,22 @@ import {
   Input,
   Left,
 } from 'native-base';
-import {FlatList, Modal, View} from 'react-native';
+import {Modal, View} from 'react-native';
 import {flexStyle, mainStyle} from '../../../layout/style';
+import RestFlatList from '../../../tbd/flatlist';
 
 export default function Criteria() {
   const [criteria, setCriteria] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const [name, setName] = useState(null);
-  const [weight, setWeight] = useState(null);
-  const [id, setId] = useState(null);
+  const [tname, setName] = useState(null);
+  const [tweight, setWeight] = useState(null);
+  const [tid, setId] = useState(null);
 
   function handleNew() {
     const formData = {
-      name: name,
-      weight: weight,
+      name: tname,
+      weight: tweight,
     };
 
     let data = {
@@ -72,8 +73,8 @@ export default function Criteria() {
 
   function handleUpdate(itemId) {
     const formData = {
-      name: name,
-      weight: weight,
+      name: tname,
+      weight: tweight,
     };
 
     let data = {
@@ -90,9 +91,9 @@ export default function Criteria() {
 
         const idx = criteria.findIndex(i => i.id === itemId);
         criteria[idx] = {
-          id: id,
-          name: name,
-          weight: weight,
+          id: tid,
+          name: tname,
+          weight: tweight,
         };
         setCriteria(criteria);
         closeModal();
@@ -113,14 +114,6 @@ export default function Criteria() {
     setModalVisible(false);
   }
 
-  function renderEdit(item) {
-    console.log(item);
-    setModalVisible(true);
-    setName(item.name);
-    setWeight(item.weight.toString());
-    setId(item.id);
-  }
-
   async function fetchData() {
     const res = await fetch('https://dm-api.herokuapp.com/api/criteria/');
     res
@@ -129,31 +122,31 @@ export default function Criteria() {
       .then(err => console.log(err));
   }
 
-  function renderRow(data) {
-    const {item} = data;
-    return (
-      <ListItem onPress={() => renderEdit(item)}>
-        <Left>
-          <Text>{item.name}</Text>
-        </Left>
-        <Right>
-          <Text>{item.weight}</Text>
-        </Right>
-      </ListItem>
-    );
-  }
+  // function renderRow(data) {
+  //   const {item} = data;
+  //   return (
+  //     <ListItem onPress={() => renderEdit(item)}>
+  //       <Left>
+  //         <Text>{item.name}</Text>
+  //       </Left>
+  //       <Right>
+  //         <Text>{item.weight}</Text>
+  //       </Right>
+  //     </ListItem>
+  //   );
+  // }
 
   function renderModalButtons() {
-    if (id) {
+    if (tid) {
       return (
         <>
-          <Button style={flexStyle.button} onPress={() => handleUpdate(id)}>
+          <Button style={flexStyle.button} onPress={() => handleUpdate(tid)}>
             <Text>Update</Text>
           </Button>
           <Button
             danger
             style={flexStyle.button}
-            onPress={() => handleDelete(id)}>
+            onPress={() => handleDelete(tid)}>
             <Text>Delete</Text>
           </Button>
         </>
@@ -171,6 +164,14 @@ export default function Criteria() {
     fetchData();
   }, []);
 
+  const [id, name, weight] = ['id', 'name', 'weight'];
+
+  const fields = [id, name, weight];
+  const listDisplays = {
+    left: name,
+    right: weight,
+  };
+
   return (
     <Container style={mainStyle.container}>
       <Header>
@@ -178,42 +179,38 @@ export default function Criteria() {
           <Title>Criteria</Title>
         </Body>
       </Header>
-      <FlatList
-        data={criteria}
-        renderItem={renderRow}
-        keyExtractor={item => item.id.toString()}
-      />
+      <RestFlatList data={criteria} displayFields={listDisplays} fields={fields} />
       <Button block onPress={() => setModalVisible(true)}>
         <Text>Add</Text>
       </Button>
-      <Modal animationType="slide" transparent={true} visible={modalVisible}>
-        <Container>
-          <Header>
-            <Left />
-            <Body>
-              <Title>Add Criteria</Title>
-            </Body>
-            <Right>
-              <Button danger transparent onPress={() => closeModal()}>
-                <Text>close</Text>
-              </Button>
-            </Right>
-          </Header>
-          <Content padder>
-            <Form>
-              <Item stackedLabel>
-                <Label>Name</Label>
-                <Input value={name} onChangeText={t => setName(t)} />
-              </Item>
-              <Item stackedLabel>
-                <Label>Weight</Label>
-                <Input value={weight} onChangeText={t => setWeight(t)} />
-              </Item>
-            </Form>
-            <View style={flexStyle.rowFlex}>{renderModalButtons()}</View>
-          </Content>
-        </Container>
-      </Modal>
+      {/*<Modal animationType="slide" transparent={true} visible={modalVisible}>*/}
+      {/*  <Container>*/}
+      {/*    <Header>*/}
+      {/*      <Left />*/}
+      {/*      <Body>*/}
+      {/*        <Title>Add Criteria</Title>*/}
+      {/*      </Body>*/}
+      {/*      <Right>*/}
+      {/*        <Button danger transparent onPress={() => closeModal()}>*/}
+      {/*          <Text>close</Text>*/}
+      {/*        </Button>*/}
+      {/*      </Right>*/}
+      {/*    </Header>*/}
+      {/*    <Content padder>*/}
+      {/*      <Form>*/}
+      {/*        <Item stackedLabel>*/}
+      {/*          <Label>Name</Label>*/}
+      {/*          <Input value={tname} onChangeText={t => setName(t)} />*/}
+      {/*        </Item>*/}
+      {/*        <Item stackedLabel>*/}
+      {/*          <Label>Weight</Label>*/}
+      {/*          <Input value={tweight} onChangeText={t => setWeight(t)} />*/}
+      {/*        </Item>*/}
+      {/*      </Form>*/}
+      {/*      <View style={flexStyle.rowFlex}>{renderModalButtons()}</View>*/}
+      {/*    </Content>*/}
+      {/*  </Container>*/}
+      {/*</Modal>*/}
     </Container>
   );
 }
