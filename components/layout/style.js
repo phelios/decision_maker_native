@@ -8,4 +8,7 @@ export const flex = StyleSheet.create({
     margin: 5,
     flex: 1,
   },
+  label: {
+    textTransform: 'capitalize',
+  },
 });

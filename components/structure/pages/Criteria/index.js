@@ -10,6 +10,10 @@ import {
   Text,
   Button,
   Right,
+  Form,
+  Item,
+  Label,
+  Input,
 } from 'native-base';
 import {Modal, View} from 'react-native';
 import {flex} from '../../../layout/style';
@@ -17,6 +21,30 @@ import {flex} from '../../../layout/style';
 export default function Criteria() {
   const [criteria, setCriteria] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+
+  const [name, setName] = useState(null);
+  const [weight, setWeight] = useState(null);
+  const [id, setId] = useState(null);
+
+  function handleNew() {
+    const formData = {
+      name: name,
+      weight: weight,
+    };
+
+    let data = {
+      method: 'POST',
+      body: JSON.stringify(formData),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    };
+
+    return fetch('https://dm-api.herokuapp.com/api/criteria/', data)
+      .then(response => response.json()) // promise
+      .then(json => setId(json.id));
+  }
 
   async function fetchData() {
     const res = await fetch('https://dm-api.herokuapp.com/api/criteria/');
@@ -28,7 +56,7 @@ export default function Criteria() {
 
   useEffect(() => {
     fetchData();
-  });
+  }, []);
 
   return (
     <Container>
@@ -57,7 +85,16 @@ export default function Criteria() {
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <Container>
           <Content padder>
-            <Text>Hello World!</Text>
+            <Form>
+              <Item stackedLabel>
+                <Label>Name</Label>
+                <Input value={name} onChangeText={t => setName(t)} />
+              </Item>
+              <Item stackedLabel>
+                <Label>Weight</Label>
+                <Input value={weight} onChangeText={t => setWeight(t)} />
+              </Item>
+            </Form>
             <View style={flex.rowFlex}>
               <Button
                 style={flex.button}
@@ -65,7 +102,7 @@ export default function Criteria() {
                 onPress={() => setModalVisible(false)}>
                 <Text>Close</Text>
               </Button>
-              <Button style={flex.button}>
+              <Button style={flex.button} onPress={handleNew}>
                 <Text>Add</Text>
               </Button>
             </View>
