@@ -14,13 +14,15 @@ import {
   Item,
   Label,
   Input,
+  Left,
 } from 'native-base';
-import {Modal, View} from 'react-native';
-import {flex} from '../../../layout/style';
+import {FlatList, Modal, View} from 'react-native';
+import {flexStyle, mainStyle} from '../../../layout/style';
 
 export default function Criteria() {
   const [criteria, setCriteria] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [deleteVisible, setDeleteVisible] = useState(false);
 
   const [name, setName] = useState(null);
   const [weight, setWeight] = useState(null);
@@ -46,6 +48,14 @@ export default function Criteria() {
       .then(json => setId(json.id));
   }
 
+  function renderEdit(item) {
+    console.log(item);
+    setModalVisible(true);
+    setName(item.name);
+    setWeight(item.weight.toString());
+    setId(item.id);
+  }
+
   async function fetchData() {
     const res = await fetch('https://dm-api.herokuapp.com/api/criteria/');
     res
@@ -54,36 +64,81 @@ export default function Criteria() {
       .then(err => console.log(err));
   }
 
+  function renderEditButton() {
+    if (!deleteVisible) {
+      return <Text>edit</Text>;
+    } else {
+      return <Text>cancel</Text>;
+    }
+  }
+
+  function renderRow(data) {
+    const {item} = data;
+    return (
+      <ListItem onPress={() => renderEdit(item)}>
+        <Left>
+          <Text>{item.name}</Text>
+        </Left>
+        <Right>
+          <Text>{item.weight}</Text>
+        </Right>
+      </ListItem>
+    );
+  }
+
+  function renderModalButtons() {
+    if (id) {
+      return (
+        <>
+          <Button style={flexStyle.button} onPress={handleNew}>
+            <Text>Update</Text>
+          </Button>
+          <Button danger style={flexStyle.button} onPress={handleNew}>
+            <Text>Delete</Text>
+          </Button>
+        </>
+      );
+    } else {
+      return (
+        <Button style={flexStyle.button} onPress={handleNew}>
+          <Text>Add</Text>
+        </Button>
+      );
+    }
+  }
+
   useEffect(() => {
     fetchData();
   }, []);
 
   return (
-    <Container>
+    <Container style={mainStyle.container}>
       <Header>
         <Body>
           <Title>Criteria</Title>
         </Body>
       </Header>
-      <Content padder>
-        <List>
-          {criteria.map(item => (
-            <ListItem key={item.id}>
-              <Body>
-                <Text>{item.name}</Text>
-              </Body>
-              <Right>
-                <Text>{item.weight}</Text>
-              </Right>
-            </ListItem>
-          ))}
-          <Button block onPress={() => setModalVisible(true)}>
-            <Text>Add</Text>
-          </Button>
-        </List>
-      </Content>
+      <FlatList
+        data={criteria}
+        renderItem={renderRow}
+        keyExtractor={item => item.id.toString()}
+      />
+      <Button block onPress={() => setModalVisible(true)}>
+        <Text>Add</Text>
+      </Button>
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <Container>
+          <Header>
+            <Left />
+            <Body>
+              <Title>Add Criteria</Title>
+            </Body>
+            <Right>
+              <Button danger transparent onPress={() => setModalVisible(false)}>
+                <Text>close</Text>
+              </Button>
+            </Right>
+          </Header>
           <Content padder>
             <Form>
               <Item stackedLabel>
@@ -95,17 +150,7 @@ export default function Criteria() {
                 <Input value={weight} onChangeText={t => setWeight(t)} />
               </Item>
             </Form>
-            <View style={flex.rowFlex}>
-              <Button
-                style={flex.button}
-                danger
-                onPress={() => setModalVisible(false)}>
-                <Text>Close</Text>
-              </Button>
-              <Button style={flex.button} onPress={handleNew}>
-                <Text>Add</Text>
-              </Button>
-            </View>
+            <View style={flexStyle.rowFlex}>{renderModalButtons()}</View>
           </Content>
         </Container>
       </Modal>
