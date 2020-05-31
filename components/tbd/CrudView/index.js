@@ -66,13 +66,11 @@ export default function CrudView(props) {
     setFormData({...formData, [fieldName]: text});
   }
 
-  // function _fetch(handler, data, _url) {
-  //   fetch(_url, data)
-  //     .then(response => resonse.json() )
-  //     .then(json => console.log(json))
-  //     // .then(r => handler(r))
-  //     // .then(closeModal());
-  // }
+  function _fetch(handler, _url, data) {
+    fetch(_url, data)
+      .then(r => handler(r))
+      .then(r => closeModal());
+  }
 
   function handleNew() {
     let data = {
@@ -84,10 +82,13 @@ export default function CrudView(props) {
       },
     };
 
-    fetch(url, data)
-      .then(r => r.json())
-      .then(json => setListData([...listData, json]))
-      .then(closeModal);
+    return _fetch(
+      r => {
+        r.json().then(newData => setListData([...listData, newData]));
+      },
+      url,
+      data,
+    );
   }
 
   function handleDelete(itemId) {
