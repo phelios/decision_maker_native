@@ -32,7 +32,6 @@ export default function CrudView(props) {
   const [formData, setFormData] = useState(initData);
 
   function renderEdit(item) {
-    console.log(item);
     setModalVisible(true);
     setFormData(item);
   }
@@ -52,8 +51,11 @@ export default function CrudView(props) {
 
   function _fetch(_url, data, handler) {
     fetch(_url, data)
-      .then(r => handler(r))
-      .then(r => closeModal());
+      .then(r => {
+        handler(r);
+        closeModal();
+      })
+      .catch(err => console.log(err));
   }
 
   function handleNew() {
@@ -66,13 +68,9 @@ export default function CrudView(props) {
       },
     };
 
-    return _fetch(
-      r => {
-        r.json().then(newData => setListData([...listData, newData]));
-      },
-      url,
-      data,
-    );
+    _fetch(url, data, r => {
+      r.json().then(newData => setListData([...listData, newData]));
+    });
   }
 
   function handleDelete() {
@@ -88,12 +86,7 @@ export default function CrudView(props) {
     });
   }
 
-  function handleUpdate(itemId) {
-    const formData = {
-      name: formData.name,
-      weight: formData.weight,
-    };
-
+  function handleUpdate() {
     let data = {
       method: 'PUT',
       body: JSON.stringify(formData),
@@ -102,31 +95,18 @@ export default function CrudView(props) {
         'Content-Type': 'application/json',
       },
     };
-    return fetch(`https://dm-api.herokuapp.com/api/criteria/${itemId}`, data)
-      .then(response => {
-        console.log(response);
-
-        const idx = listData.findIndex(i => i.id === itemId);
-        listData[idx] = {
-          id: formData.id,
-          name: formData.name,
-          weight: formData.weight,
-        };
-        setListData(listData);
-        closeModal();
-      })
-      .then(err => {
-        console.log(err);
-      });
+    _fetch(`${url}${formData.id}`, data, r => {
+      const idx = listData.findIndex(i => i.id === formData.id);
+      listData[idx] = formData;
+      setListData(listData);
+    });
   }
 
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
-    const res = fetch(url);
-    res
-      .then(data => data.json())
-      .then(json => setListData(json))
-      .then(err => console.log(err));
+    _fetch(url, {}, r => {
+      r.json().then(json => setListData(json));
+    });
   }, []);
   /* eslint-enable react-hooks/exhaustive-deps */
 
