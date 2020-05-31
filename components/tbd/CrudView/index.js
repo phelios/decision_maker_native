@@ -25,7 +25,7 @@ export default function CrudView(props) {
   const [listData, setListData] = useState([]);
 
   const initData = fields.reduce((obj, val) => {
-    obj[val] = null;
+    obj[val] = '';
     return obj;
   }, {});
 
@@ -34,23 +34,7 @@ export default function CrudView(props) {
   function renderEdit(item) {
     console.log(item);
     setModalVisible(true);
-    // setName(item.name);
-    // setWeight(item.weight.toString());
-    // setId(item.id);
-  }
-
-  function renderRow(data) {
-    const {item} = data;
-    return (
-      <ListItem onPress={() => renderEdit(item)}>
-        <Left>
-          <Text>{item[displayFields.left]}</Text>
-        </Left>
-        <Right>
-          <Text>{item[displayFields.right]}</Text>
-        </Right>
-      </ListItem>
-    );
+    setFormData(item);
   }
 
   function resetData() {
@@ -66,7 +50,7 @@ export default function CrudView(props) {
     setFormData({...formData, [fieldName]: text});
   }
 
-  function _fetch(handler, _url, data) {
+  function _fetch(_url, data, handler) {
     fetch(_url, data)
       .then(r => handler(r))
       .then(r => closeModal());
@@ -91,22 +75,17 @@ export default function CrudView(props) {
     );
   }
 
-  function handleDelete(itemId) {
+  function handleDelete() {
     let data = {
       method: 'DELETE',
     };
-    return fetch(`${url}/${itemId}`, data)
-      .then(response => {
-        setFormData(
-          formData.filter(v => {
-            return v.id !== itemId;
-          }),
-        );
-        closeModal();
-      })
-      .then(err => {
-        console.log(err);
-      });
+    _fetch(`${url}${formData.id}`, data, r => {
+      setListData(
+        listData.filter(v => {
+          return v.id !== formData.id;
+        }),
+      );
+    });
   }
 
   function handleUpdate(itemId) {
@@ -150,6 +129,20 @@ export default function CrudView(props) {
       .then(err => console.log(err));
   }, []);
   /* eslint-enable react-hooks/exhaustive-deps */
+
+  function renderRow(data) {
+    const {item} = data;
+    return (
+      <ListItem onPress={() => renderEdit(item)}>
+        <Left>
+          <Text>{item[displayFields.left]}</Text>
+        </Left>
+        <Right>
+          <Text>{item[displayFields.right]}</Text>
+        </Right>
+      </ListItem>
+    );
+  }
 
   function renderModalButtons() {
     if (formData.id) {
@@ -201,7 +194,7 @@ export default function CrudView(props) {
                 <Item stackedLabel key={field}>
                   <Label style={flexStyle.label}>{field}</Label>
                   <Input
-                    value={formData[field]}
+                    value={formData[field].toString()}
                     onChangeText={t => updateFormData(field, t)}
                   />
                 </Item>
