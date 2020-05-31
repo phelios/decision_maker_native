@@ -14,6 +14,7 @@ import {
   Right,
   Text,
   Title,
+  Spinner,
 } from 'native-base';
 import React, {useEffect, useState} from 'react';
 import {flexStyle} from '../../layout/style';
@@ -22,6 +23,7 @@ export default function CrudView(props) {
   const {fields, displayFields, url} = props;
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [listData, setListData] = useState([]);
 
   const initData = fields.reduce((obj, val) => {
@@ -50,12 +52,14 @@ export default function CrudView(props) {
   }
 
   function _fetch(_url, data, handler) {
+    setIsLoading(true);
     fetch(_url, data)
       .then(r => {
         handler(r);
         closeModal();
       })
-      .catch(err => console.log(err));
+      .catch(err => console.log(err))
+      .finally(() => setIsLoading(false));
   }
 
   function handleNew() {
@@ -110,6 +114,14 @@ export default function CrudView(props) {
   }, []);
   /* eslint-enable react-hooks/exhaustive-deps */
 
+  function RenderSpinner() {
+    if (isLoading) {
+      return <Spinner color="black" />;
+    } else {
+      return null;
+    }
+  }
+
   function renderRow(data) {
     const {item} = data;
     return (
@@ -147,6 +159,7 @@ export default function CrudView(props) {
 
   return (
     <>
+      <RenderSpinner />
       <FlatList
         data={listData}
         renderItem={renderRow}
@@ -158,7 +171,9 @@ export default function CrudView(props) {
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <Container>
           <Header>
-            <Left />
+            <Left>
+              <RenderSpinner />
+            </Left>
             <Body>
               <Title>Add Criteria</Title>
             </Body>
