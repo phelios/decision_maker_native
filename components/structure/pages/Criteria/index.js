@@ -17,15 +17,11 @@ import {
 } from 'native-base';
 import {Modal, View} from 'react-native';
 import {flexStyle, mainStyle} from '../../../layout/style';
-import RestFlatList from '../../../tbd/flatlist';
+import CrudView from '../../../tbd/flatlist';
 
 export default function Criteria() {
   const [criteria, setCriteria] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-
-  const [tname, setName] = useState(null);
-  const [tweight, setWeight] = useState(null);
-  const [tid, setId] = useState(null);
 
   function handleNew() {
     const formData = {
@@ -103,17 +99,6 @@ export default function Criteria() {
       });
   }
 
-  function resetData() {
-    setName(null);
-    setWeight(null);
-    setId(null);
-  }
-
-  function closeModal() {
-    resetData();
-    setModalVisible(false);
-  }
-
   async function fetchData() {
     const res = await fetch('https://dm-api.herokuapp.com/api/criteria/');
     res
@@ -136,37 +121,13 @@ export default function Criteria() {
   //   );
   // }
 
-  function renderModalButtons() {
-    if (tid) {
-      return (
-        <>
-          <Button style={flexStyle.button} onPress={() => handleUpdate(tid)}>
-            <Text>Update</Text>
-          </Button>
-          <Button
-            danger
-            style={flexStyle.button}
-            onPress={() => handleDelete(tid)}>
-            <Text>Delete</Text>
-          </Button>
-        </>
-      );
-    } else {
-      return (
-        <Button style={flexStyle.button} onPress={handleNew}>
-          <Text>Add</Text>
-        </Button>
-      );
-    }
-  }
-
   useEffect(() => {
     fetchData();
   }, []);
 
-  const [id, name, weight] = ['id', 'name', 'weight'];
+  const [name, weight] = ['name', 'weight'];
 
-  const fields = [id, name, weight];
+  const fields = [name, weight];
   const listDisplays = {
     left: name,
     right: weight,
@@ -179,38 +140,7 @@ export default function Criteria() {
           <Title>Criteria</Title>
         </Body>
       </Header>
-      <RestFlatList data={criteria} displayFields={listDisplays} fields={fields} />
-      <Button block onPress={() => setModalVisible(true)}>
-        <Text>Add</Text>
-      </Button>
-      {/*<Modal animationType="slide" transparent={true} visible={modalVisible}>*/}
-      {/*  <Container>*/}
-      {/*    <Header>*/}
-      {/*      <Left />*/}
-      {/*      <Body>*/}
-      {/*        <Title>Add Criteria</Title>*/}
-      {/*      </Body>*/}
-      {/*      <Right>*/}
-      {/*        <Button danger transparent onPress={() => closeModal()}>*/}
-      {/*          <Text>close</Text>*/}
-      {/*        </Button>*/}
-      {/*      </Right>*/}
-      {/*    </Header>*/}
-      {/*    <Content padder>*/}
-      {/*      <Form>*/}
-      {/*        <Item stackedLabel>*/}
-      {/*          <Label>Name</Label>*/}
-      {/*          <Input value={tname} onChangeText={t => setName(t)} />*/}
-      {/*        </Item>*/}
-      {/*        <Item stackedLabel>*/}
-      {/*          <Label>Weight</Label>*/}
-      {/*          <Input value={tweight} onChangeText={t => setWeight(t)} />*/}
-      {/*        </Item>*/}
-      {/*      </Form>*/}
-      {/*      <View style={flexStyle.rowFlex}>{renderModalButtons()}</View>*/}
-      {/*    </Content>*/}
-      {/*  </Container>*/}
-      {/*</Modal>*/}
+      <CrudView data={criteria} displayFields={listDisplays} fields={fields} />
     </Container>
   );
 }
